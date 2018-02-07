@@ -7,6 +7,12 @@ import time
 import ctypes
 import weakref
 
+SW_RESTORE = 9
+SPIF_SENDCHANGE = 2
+SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000
+SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001
+
+
 hwnd_map = weakref.WeakKeyDictionary()
 
 EnumWindows = ctypes.windll.user32.EnumWindows
@@ -66,7 +72,7 @@ def activate_window(title, position=1):
     SystemParametersInfo = ctypes.windll.user32.SystemParametersInfoA
     
     if IsIconic(hwnd):
-        ShowWindow(hwnd, winconstants.SW_RESTORE)
+        ShowWindow(hwnd, SW_RESTORE)
     if GetForegroundWindow() == hwnd:
         return True
     ForegroundThreadID = GetWindowThreadProcessId(GetForegroundWindow(), None)
@@ -79,11 +85,11 @@ def activate_window(title, position=1):
             return True
     timeout = ctypes.c_int()
     zero = ctypes.c_int(0)
-    SystemParametersInfo(winconstants.SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), 0)
-    (winconstants.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(zero), winconstants.SPIF_SENDCHANGE)
+    SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), 0)
+    (SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(zero), SPIF_SENDCHANGE)
     BringWindowToTop(hwnd)
     SetForegroundWindow(hwnd)
-    SystemParametersInfo(winconstants.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), winconstants.SPIF_SENDCHANGE); 
+    SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), SPIF_SENDCHANGE); 
     if GetForegroundWindow() == hwnd:
         return True
     return False
@@ -102,6 +108,40 @@ class WindowImplementation:
 
     def minimize(self):
         ctypes.windll.user32.ShowWindow(self.hwnd, 6)
+
+    def focus(self):
+        IsIconic = ctypes.windll.user32.IsIconic
+        ShowWindow = ctypes.windll.user32.ShowWindow
+        GetForegroundWindow = ctypes.windll.user32.GetForegroundWindow
+        GetWindowThreadProcessId = ctypes.windll.user32.GetWindowThreadProcessId
+        BringWindowToTop = ctypes.windll.user32.BringWindowToTop
+        AttachThreadInput = ctypes.windll.user32.AttachThreadInput
+        SetForegroundWindow = ctypes.windll.user32.SetForegroundWindow
+        SystemParametersInfo = ctypes.windll.user32.SystemParametersInfoA
+        
+        if IsIconic(self.hwnd):
+            ShowWindow(self.hwnd, SW_RESTORE)
+        if GetForegroundWindow() == self.hwnd:
+            return True
+        ForegroundThreadID = GetWindowThreadProcessId(GetForegroundWindow(), None)
+        ThisThreadID = GetWindowThreadProcessId(self.hwnd, None)
+        if AttachThreadInput(ThisThreadID, ForegroundThreadID, True):
+            BringWindowToTop(self.hwnd)
+            SetForegroundWindow(self.hwnd)
+            AttachThreadInput(ThisThreadID, ForegroundThreadID, False)
+            if GetForegroundWindow() == self.hwnd:
+                return True
+        timeout = ctypes.c_int()
+        zero = ctypes.c_int(0)
+        SystemParametersInfo(winconstants.SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), 0)
+        (winconstants.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(zero), winconstants.SPIF_SENDCHANGE)
+        BringWindowToTop(self.hwnd)
+        SetForegroundWindow(self.hwnd)
+        SystemParametersInfo(winconstants.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ctypes.byref(timeout), winconstants.SPIF_SENDCHANGE); 
+        if GetForegroundWindow() == self.hwnd:
+            return True
+        return False
+
 
 def get_all_windows():
     windows = []

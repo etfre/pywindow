@@ -9,3 +9,6 @@ class ApplicationWindow:
 
     def minimize(self):
         self._implementation.minimize()
+        
+    def focus(self):
+        self._implementation.focus()
