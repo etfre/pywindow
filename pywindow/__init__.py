@@ -6,7 +6,11 @@ if sys.platform == 'win32':
 else:
     raise RuntimeError
 
-def get_all_windows():
-    return os_specific_implementation.get_all_windows()
-def get_foreground_window():
-    return os_specific_implementation.get_foreground_window()
+def all_windows():
+    return os_specific_implementation.all_windows()
+
+def foreground_window():
+    return os_specific_implementation.foreground_window()
+
+class WindowDoesNotExistError(BaseException):
+    pass
