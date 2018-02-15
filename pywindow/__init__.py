@@ -4,7 +4,7 @@ import sys
 if sys.platform == 'win32':
     import pywindow._windows as os_specific_implementation 
 else:
-    raise RuntimeError
+    raise RuntimeError('Only Windows is currently supported.')
 
 def all_windows():
     return os_specific_implementation.all_windows()

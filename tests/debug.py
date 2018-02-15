@@ -8,10 +8,9 @@ def debug():
     #     print(w.title)
     time.sleep(3)
     w = pywindow.foreground_window()
-    print('confused')
-    time.sleep(30)
+    time.sleep(5)
+    # w.close()
     w.maximize()
-    # w.focus()
 
 if __name__ == '__main__':
     debug()

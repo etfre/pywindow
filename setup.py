@@ -14,8 +14,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'pywindow'
 DESCRIPTION = 'My short description for my project.'
-URL = 'https://github.com/me/myproject'
-EMAIL = 'me@example.com'
+URL = 'https://github.com/evfredericsen/pywindow'
 AUTHOR = 'Evan Fredericksen'
 
 # What packages are required for this module to be executed?
@@ -36,7 +35,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 #     long_description = '\n' + f.read()
 long_description = 'abc'
 # Load the package's __version__.py module as a dictionary.
-about = {'__version__': '0.0.1'}
+about = {'__version__': '0.0.3'}
 # with open(os.path.join(here, NAME, '__version__.py')) as f:
 #     exec(f.read(), about)
 
@@ -60,8 +59,15 @@ class UploadCommand(Command):
         except OSError:
             pass
         os.system('pipenv run python setup.py sdist bdist_wheel && pipenv run twine upload dist/*')
-
+        remove_folders(('dist', 'build', 'pywindow.egg-info'))
         sys.exit()
+
+def remove_folders(folders):
+    for fname in folders:
+        try:
+            rmtree(os.path.join(here, fname))
+        except OSError:
+            pass
 
 
 # Where the magic happens:
@@ -71,7 +77,6 @@ setup(
     description=DESCRIPTION,
     long_description=long_description,
     author=AUTHOR,
-    author_email=EMAIL,
     url=URL,
     packages=find_packages(exclude=('tests',)),
     # If your package is a single module, use this instead of 'packages':
@@ -88,15 +93,9 @@ setup(
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Programming Language :: Python :: Implementation :: PyPy'
     ],
     # $ setup.py publish support.
     cmdclass={

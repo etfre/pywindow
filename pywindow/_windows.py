@@ -61,7 +61,7 @@ class WindowImplementation:
         return window_title(self.hwnd)
 
     def maximize(self):
-        print(ctypes.windll.user32.ShowWindow(self.hwnd, 3))
+        ctypes.windll.user32.ShowWindow(self.hwnd, 3)
 
     def minimize(self):
         ctypes.windll.user32.ShowWindow(self.hwnd, 6)
