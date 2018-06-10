@@ -8,6 +8,8 @@ def debug():
     #     print(w.title)
     time.sleep(3)
     w = pywindow.foreground_window()
+    print(w.coords)
+    print(w.right)
     time.sleep(5)
     # w.close()
     w.maximize()

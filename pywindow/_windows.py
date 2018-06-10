@@ -3,6 +3,8 @@ Collection of Windows-specific I/O functions
 '''
 
 import msvcrt
+
+import win32gui
 import time
 import ctypes
 import weakref
@@ -69,6 +71,36 @@ class WindowImplementation:
     def close(self):
         ctypes.windll.user32.PostMessageA(self.hwnd, WM_CLOSE, 0, 0)
         
+    @property
+    def coords(self):
+        rect = bounds(self.hwnd)
+        return rect.left, rect.top, rect.right, rect.bottom
+
+    @property
+    def width(self):
+        rect = bounds(self.hwnd)
+        return rect.right - rect.left
+
+    @property
+    def height(self):
+        rect = bounds(self.hwnd)
+        return rect.bottom - rect.top
+
+    @property
+    def left(self):
+        return bounds(self.hwnd).left
+            
+    @property
+    def top(self):
+        return bounds(self.hwnd).top
+        
+    @property
+    def right(self):
+        return bounds(self.hwnd).right
+        
+    @property
+    def bottom(self):
+        return bounds(self.hwnd).bottom
 
     def focus(self):
         IsIconic = ctypes.windll.user32.IsIconic
@@ -137,3 +169,14 @@ def create_application_window(hwnd):
     from pywindow.appwindow import ApplicationWindow
     impl = WindowImplementation(hwnd)
     return ApplicationWindow(impl)
+
+class RECT(ctypes.Structure):
+    _fields_ = [('left', ctypes.c_long),
+                ('top', ctypes.c_long),
+                ('right', ctypes.c_long),
+                ('bottom', ctypes.c_long)]
+
+def bounds(hwnd):
+    rect = RECT()
+    user32.GetWindowRect(hwnd, ctypes.byref(rect))
+    return rect

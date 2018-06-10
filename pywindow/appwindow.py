@@ -3,18 +3,11 @@ class ApplicationWindow:
     def __init__(self, implementation):
         self._implementation = implementation
 
-    @property
-    def title(self):
-        return self._implementation.title
+    def __getattr__(self, name):
+        if name.startswith('_'):
+            return getattr(super(), name)
+        else:
+            return getattr(self._implementation, name)
 
-    def minimize(self):
-        self._implementation.minimize()
-        
-    def maximize(self):
-        self._implementation.maximize()
-        
-    def close(self):
-        self._implementation.close()
-        
-    def focus(self):
-        self._implementation.focus()
+    def __dir__(self):
+        return dir(self._implementation)
